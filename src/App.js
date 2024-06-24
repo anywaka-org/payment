@@ -1,23 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import PaystackPop from "@paystack/inline-js";
 
-function App() {
+
+function App(props) {
+  const paystack = new PaystackPop();
+  const key =  process.env.REACT_APP_PSKEY ;
+
+  console.log(key);
+  const location = new URLSearchParams(window.location.search);
+  const fundWallet = () => {
+    console.log(location.get('amount') * 100);
+      paystack.newTransaction({
+        amount: location.get('amount') * 100,
+        email: location.get('email'),
+        key: key,
+        onSuccess: () => alert("back to app")
+      });
+  };
+  useEffect(()=>fundWallet(),[])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="fund auth">
+
     </div>
   );
 }
