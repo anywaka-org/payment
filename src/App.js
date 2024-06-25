@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import PaystackPop from "@paystack/inline-js";
 
 
-function App(props) {
+function App() {
   const paystack = new PaystackPop();
   const key =  process.env.REACT_APP_PSKEY ;
 
