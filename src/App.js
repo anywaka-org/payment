@@ -17,6 +17,7 @@ function App() {
         onSuccess: () => alert("back to app")
       });
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(()=>fundWallet(),[])
   return (
     <div className="fund auth">
