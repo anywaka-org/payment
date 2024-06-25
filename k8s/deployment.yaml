@@ -18,7 +18,7 @@ spec:
         - name: anywork-payment
           image: <Image>
           ports:
-            - containerPort: 4000
+            - containerPort: 80
           resources:
             limits:
               cpu: "1"
