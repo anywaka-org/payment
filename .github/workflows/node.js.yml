@@ -1,4 +1,4 @@
-name: Deploy Production API
+name: Deploy Payment
 on:
   push:
     branches:
@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
       - name: Build  and push docker image
         run: docker build -t ${{secrets.dockerhub_username}}/anywork-payment:${{ github.sha }} $GITHUB_WORKSPACE/. && docker push ${{secrets.dockerhub_username}}/anywork-payment:${{ github.sha }}
-  apply-api-config:
+  apply-config:
     runs-on: ubuntu-latest
     needs: build-push
     steps:
