@@ -1,20 +1,44 @@
-name: Build and Deploy
+name: Deploy Production API
 on:
   push:
-    branches: ["main"]
+    branches:
+      - "main"
 jobs:
-  build:
+  build-push:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm i
-      - name: build app
-        run: npm run build
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      # - name: Make dependencies stable
+      #   run: |
+      #     chmod +x ./scripts/stable_packages
+      #     ./scripts/stable_packages
+      - name: Log into docker
+        uses: docker/login-action@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          cname: pay.ginyverse.com
+          username: ${{secrets.dockerhub_username}}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+      - name: Build  and push docker image
+        run: docker build -t ${{secrets.dockerhub_username}}/anywork-payment:${{ github.sha }} $GITHUB_WORKSPACE/. && docker push ${{secrets.dockerhub_username}}/anywork-payment:${{ github.sha }}
+  apply-api-config:
+    runs-on: ubuntu-latest
+    needs: build-push
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: add kubernetes to config
+        run: doctl kubernetes cluster config save giny
+      - name: update deployment file
+        run: |
+          cat $GITHUB_WORKSPACE/k8s/anywork-payment-deployment.yaml | sed "s/<Image>/${{secrets.dockerhub_username}}\/anywork-payment:${{ github.sha }}/g" | kubectl apply -f -
+      - name: Apply configs
+        run: kubectl apply -f $GITHUB_WORKSPACE/k8s/prod
+      - name: Check rollout status
+        run: kubectl rollout status deployment/anywork-payment-deployment
+        # prod
