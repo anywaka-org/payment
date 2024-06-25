@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anywork-payment-deployment
+  # annotations:
+    # secrets.doppler.com/reload: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: anywork-payment
+  template:
+    metadata:
+      labels:
+        component: anywork-payment
+    spec:
+      containers:
+        - name: anywork-payment
+          image: <Image>
+          ports:
+            - containerPort: 4000
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: anywork-payment-cluster-ip-service
+spec:
+  selector:
+    component: anywork-payment
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+---
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: anywork-pay
+  annotations:
+    cert-manager.io/cluster-issuer: cert-manager
+    nginx.ingress.kubernetes.io/proxy-body-size: 20m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "pay.ginyverse.com"
+      secretName: ginyverse-api-tls
+  rules:
+    - host: pay.ginyverse.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: anywork-payment-cluster-ip-service
+                port:
+                  number: 80

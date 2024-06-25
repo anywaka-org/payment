@@ -36,9 +36,7 @@ jobs:
         run: doctl kubernetes cluster config save giny
       - name: update deployment file
         run: |
-          cat $GITHUB_WORKSPACE/k8s/anywork-payment-deployment.yaml | sed "s/<Image>/${{secrets.dockerhub_username}}\/anywork-payment:${{ github.sha }}/g" | kubectl apply -f -
-      - name: Apply configs
-        run: kubectl apply -f $GITHUB_WORKSPACE/k8s/prod
+          cat $GITHUB_WORKSPACE/k8s/deployment.yaml | sed "s/<Image>/${{secrets.dockerhub_username}}\/anywork-payment:${{ github.sha }}/g" | kubectl apply -f -
       - name: Check rollout status
         run: kubectl rollout status deployment/anywork-payment-deployment
         # prod
