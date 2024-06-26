@@ -8,20 +8,20 @@ function App() {
  
   console.log(key);
   const location = new URLSearchParams(window.location.search);
-   const reidrect =()=>{
-   const button = document.createElement("a")
-   button.setAttribute("href",location.get("redirect"));
-   button.click()
-   }
+  //  const reidrect =()=>{
+  //  const button = document.createElement("a")
+  //  button.setAttribute("href",location.get("redirect"));
+  //  button.click()
+  //  }
   const fundWallet = () => {
     console.log(location.get('amount') * 100);
       paystack.newTransaction({
         amount: location.get('amount') * 100,
         email: location.get('email'),
         key: key,
-        onClose: reidrect(),
-        onCancel: reidrect(),
-        onSuccess:  reidrect()
+        onClose:()=> alert("back to app"),
+        onCancel:()=> alert("back to app"),
+        onSuccess: () => alert("back to app")
       });
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps
